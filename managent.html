@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>学生管理系统 - 后台</title>
+</head>
+<body>
+
+<main id="app">
+    <header class="bg-dark d-flex justify-content-between text-white p-3">
+        <h3>XX学院学生管理系统</h3>
+        <div class="text-white">
+            <a href="javascript:;" class="text-white" v-clock>{{auth.username}}(<span class="small">{{auth.type}}</span>)</a>
+            <button class="btn border-0 text-white" @click="logout">Log out</button>
+        </div>
+    </header>
+    <main>
+        <div class="row col-12">
+            <div class="col-2 bg-secondary left-menu pl-0">
+                <ul class="p-3">
+                    <li class="mb-2" v-if="auth.type == 'ADMIN'">
+                        <div class="menu">
+                            <a href="managent.html" class="text-dark">用户管理</a>
+                        </div>
+                    </li>
+                    <li class="mb-2">
+                        <div class="menu">
+                            <a href="information.html" class="text-dark">学生信息管理</a>
+                        </div>
+                    </li>
+                    <li class="mb-2">
+                        <div class="menu">
+                            <a href="score.html" class="text-dark">学生成绩管理</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-9 mt-4">
+                <select class="form-control mb-3 col-4"  v-model="showTable">
+                    <option value="teacher">教师管理</option>
+                    <option value="department">院系管理</option>
+                    <option value="subject">科目管理</option>
+                </select>
+                <div class="d-flex">
+                    <table class="table table-bordered table-hover col-4 mr-2" v-if="showTable == 'teacher'">
+                        <thead>
+                            <tr class="large text-center">
+                                <th colspan="11">
+                                    教师管理
+                                    <span class="addInfo text-primary small" data-target="#addUser" data-toggle="modal">添加</span>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>工号</th>
+                                <th>姓名</th>
+                                <th>专业</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in teacher">
+                                <td v-clock>{{item.number}}</td>
+                                <td v-clock>{{item.username}}</td>
+                                <td v-clock>{{item.major}}</td>
+                                <td>
+                                    <a href="javascript:;" class="text-danger" @click="delTeacher(item.id)">删除</a>
+                                    <a href="javascript:;" class="text-success" @click="editInfo.number = item.number" data-target="#editPassword" data-toggle="modal">改密</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-bordered table-hover col-4 mr-2" v-if="showTable == 'department'">
+                        <thead>
+                            <tr class="large text-center">
+                                <th colspan="11">院系管理</th>
+                            </tr>
+                            <tr>
+                                <th>院系名
+                                    <span class="addInfo text-primary small" data-target="#addDepartment" data-toggle="modal">添加</span>
+                                </th>
+                                <th>专业名
+                                    <span class="addInfo text-primary small" data-target="#addMajor" data-toggle="modal">添加</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="v in major">
+                                <td v-clock>{{v.department}}</td>
+                                <td v-clock>{{v.major}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <table class="table table-bordered table-hover col-4 mr-2" v-if="showTable == 'subject'">
+                    <thead>
+                        <tr class="large text-center">
+                            <th colspan="11">
+                                科目管理
+                                <span class="addInfo text-primary small" data-target="#addSubject" data-toggle="modal">添加</span>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>专业名</th>
+                            <th>科目名</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="v in subject">
+                            <td>{{v.major}}</td>
+                            <td>{{v.subject}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="addUser">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <!-- 模态框头部 -->
+            <div class="modal-header">
+                <h4 class="modal-title">添加教师</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- 模态框主体 -->
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="工号" v-model="addInfo.number">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="用户名" v-model="addInfo.username">
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" placeholder="密码" v-model="addInfo.password">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="专业" v-model="addInfo.major">
+                </div>
+            </div>
+            <!-- 模态框底部 -->
+            <div class="modal-footer">
+                <button class="btn bg-primary text-white" @click.stop.prevent="addTeacher">提交</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addDepartment">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <!-- 模态框头部 -->
+            <div class="modal-header">
+                <h4 class="modal-title">添加院系</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- 模态框主体 -->
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" name="department" class="form-control" placeholder="院系名" v-model="departmentInfo.department">
+                </div>
+            </div>
+            <!-- 模态框底部 -->
+            <div class="modal-footer">
+                <button class="btn bg-primary text-white" @click.stop.prevent="addDepartment">提交</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addMajor">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <!-- 模态框头部 -->
+            <div class="modal-header">
+                <h4 class="modal-title">添加专业</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- 模态框主体 -->
+            <div class="modal-body">
+                <div class="form-group">
+                    <select name="院系名" id="department" class="form-control" v-model="majorInfo.department">
+                        <option v-for="v in department" :value="v.department">{{v.department}}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="专业名" v-model="majorInfo.major">
+                </div>
+            </div>
+            <!-- 模态框底部 -->
+            <div class="modal-footer">
+                <button class="btn bg-primary text-white" @click.stop.prevent="addMajor">提交</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addSubject">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- 模态框头部 -->
+                <div class="modal-header">
+                    <h4 class="modal-title">添加专业</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- 模态框主体 -->
+                <div class="modal-body">
+                    <div class="form-group">
+                        <select name="专业名" id="department" class="form-control" v-model="subjectInfo.major">
+                            <option v-for="v in major" :value="v.major">{{v.major}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group" v-for="(v,k) in subjectInfo.subject">
+                        <input type="text" class="form-control" placeholder="科目名" v-model="subjectInfo.subject.subject1">
+                    </div>
+                </div>
+                <!-- 模态框底部 -->
+                <div class="modal-footer">
+                    <button class="btn border-primary" @click="morSubject">添加</button>
+                    <button class="btn bg-primary text-white" @click="addSubject">提交</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="editPassword">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <!-- 模态框头部 -->
+            <div class="modal-header">
+                <h4 class="modal-title">修改密码</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <!-- 模态框主体 -->
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="工号" v-model="editInfo.number" readonly>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" placeholder="密码" v-model="editInfo.password">
+                </div>
+            </div>
+            <!-- 模态框底部 -->
+            <div class="modal-footer">
+                <button class="btn bg-primary text-white" @click.stop.prevent="editPassword">提交</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+            </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.min.js"></script>
+<script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            url: 'php/api',
+            auth: '',
+            teacher: [],
+            subject: [],
+            major: [],
+            department: [],
+            addInfo: {
+                'number' : '',
+                'username' : '',
+                'password' : '',
+                'major' : ''
+            },
+            departmentInfo: {
+                'department' : ''
+            },
+            majorInfo: {
+                'department' : '',
+                'major' : ''
+            },
+            subjectInfo: {
+                'major' : '',
+                'subject' : {
+                    'subject1' : '',
+                }
+            },
+            showTable: 'teacher',
+            editInfo: {
+                number: '',
+                password: '',
+            }
+        },
+        methods: {
+            logout(){
+                $.ajax({
+                    url: `${this.url}/user/logout?token=${this.auth.token}`,
+                    type: 'get',
+                    success(data){
+                        localStorage.removeItem('auth');
+                        location.href = 'index.html';
+                    }
+                })
+            },
+            getTeacher(){
+                var _this = this;
+                $.get(`${this.url}/user/teacher?token=${this.auth.token}`,function(data){
+                    _this.teacher = data.data;
+                });
+            },
+            delTeacher(id){
+                var _this = this;
+                $.ajax({
+                    url: `${this.url}/user/delete/teacher/${id}?token=${this.auth.token}`,
+                    type: 'POST',
+                    data: {
+                        '_method' : 'DELETE'
+                    },
+                    success(data){
+                        _this.getTeacher();
+                    }
+                })
+            },
+            addTeacher(){
+                var _this = this;
+                $.ajax({
+                    url: `${this.url}/user/register?token=${this.auth.token}`,
+                    type: 'POST',
+                    data: this.addInfo,
+                    success(data){
+                        _this.getTeacher();
+                        $('#addUser input').val('');
+                        $('.close').click();
+                    },
+                    error(xmr){
+                        var err = JSON.parse(xmr.responseText);
+                        var str = `<p class="text-danger error_message">${err.msg}</p>`;
+                        $('#addUser').append(str);
+                        setTimeout(function(){
+                            $('.error_message').fadeOut();
+                        },2000);
+                    }
+                })
+            },
+            getMajor(){
+                var _this = this;
+                $.get(`${this.url}/school/index?token=${this.auth.token}`,function(data){
+                    _this.major = data.data;
+                    _this.department = data.department;
+                });
+            },
+            getSubject(){
+                var _this = this;
+                $.get(`${this.url}/school/showSubject?token=${this.auth.token}`,function(data){
+                    _this.subject = data.data;
+                })
+            },
+            addDepartment(){
+                var _this = this;
+                $.ajax({
+                    url: `${this.url}/school/department?token=${this.auth.token}`,
+                    type: 'POST',
+                    data: this.departmentInfo,
+                    success(data){
+                        _this.getMajor();
+                        $('#addDepartment input').val('');
+                        $('.close').click();
+                    }
+                });
+            },
+            addMajor(){
+                var _this = this;
+                $.ajax({
+                    url: `${this.url}/school/major?token=${this.auth.token}`,
+                    type: 'POST',
+                    data: this.majorInfo,
+                    success(data){
+                        _this.getMajor();
+                        $('#addMajor input').val('');
+                        $('.close').click();
+                        
+                    }
+                });
+            },
+            addSubject(){
+                var _this = this;
+                $.ajax({
+                    url: `${this.url}/school/subject?token=${this.auth.token}`,
+                    type: 'POST',
+                    data: this.subjectInfo,
+                    success(data){
+                        _this.getSubject();
+                        _this.subjectInfo.subject = { 'subject1' : '', };
+                        $('.close').click();
+                    }
+                });
+            },
+            morSubject(){
+                var len = Object.keys(this.subjectInfo.subject);
+                var subject = 'subject' + (len.length+=1); 
+                this.subjectInfo.subject[`${subject}`] = '';
+            },
+            editPassword(){
+                var _this = this;
+                $.ajax({
+                    url: `${this.url}/user/info/password?token=${this.auth.token}`,
+                    type: 'POST',
+                    data: this.editInfo,
+                    success(data){
+                        _this.editInfo = {
+                                number: '',
+                                password: '',
+                            };
+                        $('#editPassword .card-body input').val('');
+                        $('.close').click();
+                    },
+                    error(xmr){
+                        var err = JSON.parse(xmr.responseText);
+                        var str = `<p class="text-danger error_message">${err.msg}</p>`;
+                        $('#editPassword .modal-content').append(str);
+                        setTimeout(function(){
+                            $('.error_message').fadeOut();
+                        },2000);
+                    }
+                })
+            }
+        },
+        mounted(){
+            if(localStorage.getItem('auth')){
+                this.auth = JSON.parse(localStorage.getItem('auth'));
+                if(this.auth.type != 'ADMIN') location.href='information.html';
+                this.getTeacher();
+                this.getMajor();
+                this.getSubject();
+            } else location.href='index.html';
+        }
+    });
+</script>
+</body>
+</html>

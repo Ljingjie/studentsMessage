@@ -1,0 +1,47 @@
+html,body,header,section,footer,div,
+ul,li,p,h1,h2,h3,h4{
+    margin: 0;
+    padding: 0;
+    outline: 0;
+}
+ul,li{
+    list-style: none;
+}
+
+/* login page style */
+.loginBody{
+    height: 100vh;
+    background: url("image/background.jpg") no-repeat center/cover;
+}
+.login{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    margin: auto;
+    height: 230px;
+}
+/* board page */
+.left-menu{
+    position: relative;
+    height: calc(100vh - 68px);
+}
+.menu{
+    width: 100%;
+    line-height: 40px;
+    text-indent: 10px;
+    border-radius: 3px;
+    background: #fff;
+}
+.addInfo{
+    float: right;
+    cursor: pointer;
+}
+#addSubject .modal-body{
+    text-transform: lowercase;
+}
+
+[v-clock]{
+    display: none;
+}

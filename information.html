@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>学生管理系统 - 后台</title>
+</head>
+<body>
+
+<main id="app">
+    <header class="bg-dark d-flex justify-content-between text-white p-3">
+        <h3>XX学院学生管理系统</h3>
+        <div class="text-white">
+            <a href="javascript:;" class="text-white" v-clock>{{auth.username}}(<span class="small">{{auth.type}}</span>)</a>
+            <button class="btn border-0 text-white" @click="logout">Log out</button>
+        </div>
+    </header>
+    <main>
+        <div class="row col-12">
+            <div class="col-2 bg-secondary left-menu pl-0">
+                <ul class="p-3">
+                    <li class="mb-2" v-if="auth.type == 'ADMIN'">
+                        <div class="menu">
+                            <a href="managent.html" class="text-dark">用户管理</a>
+                        </div>
+                    </li>
+                    <li class="mb-2">
+                        <div class="menu">
+                            <a href="information.html" class="text-dark">学生信息管理</a>
+                        </div>
+                    </li>
+                    <li class="mb-2">
+                        <div class="menu">
+                            <a href="score.html" class="text-dark">学生成绩管理</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-9 mt-3">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr class="large text-center">
+                            <th colspan="99">
+                                学生信息管理
+                                <span class="addInfo text-primary small" 
+                                data-target="#addStudent" data-toggle="modal" v-if="auth.type=='TEACHER'||auth.type=='ADMIN'">添加</span>
+                            </th>
+                        </tr>
+                        <tr v-if="auth.type != 'STUDENT'">
+                            <th colspan="99">
+                                <div class="form-inline">
+                                    <input type="text" class="form-control col-4" id="searchData" placeholder="按学号搜索">
+                                    <button class="btn btn-primary" @click="searchInfo">搜索</button>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>学号</th>
+                            <th>照片</th>
+                            <th>姓名</th>
+                            <th>性别</th>
+                            <th>出生日期</th>
+                            <th>身份证号</th>
+                            <th>联系方式</th>
+                            <th>院系</th>
+                            <th>专业</th>
+                            <th>籍贯</th>
+                            <th>政治面貌</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="v in detail">
+                            <td v-clock>{{v.number}}</td>
+                            <td><img :src="`php/public/${v.photo_url}`" alt="学生照片" width="58px" height="82px"/></td>
+                            <td v-clock>{{v.name}}</td>
+                            <td v-clock>{{v.sex}}</td>
+                            <td v-clock>{{v.birth}}</td>
+                            <td v-clock>{{v.card}}</td>
+                            <td v-clock>{{v.contact}}</td>
+                            <td v-clock>{{v.department}}</td>
+                            <td v-clock>{{v.major}}</td>
+                            <td v-clock>{{v.place}}</td>
+                            <td v-clock>{{v.role}}</td>
+                            <td>
+                                <a href="javascript:;" class="text-primary mr-2" @click="edit = (JSON.parse(JSON.stringify(v)))" 
+                                data-target="#editStudent" data-toggle="modal" v-if="auth.type=='TEACHER'||auth.type=='ADMIN'">修改</a>
+                                <a href="javascript:;" class="text-danger" v-if="auth.type=='ADMIN'" @click="delDetail(v.id)">删除</a>
+                                <a href="javascript:;" class="text-success" 
+                                @click="editInfo.number = v.number" data-target="#editPassword" data-toggle="modal">改密</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="addStudent">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">添加新用户</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="addData">
+                        <div class="form-group">
+                            <input type="file" class="form-control" placeholder="照片" name="photo">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="学号" name="number" v-model="add.number">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="姓名" name="name" v-model="add.name">
+                        </div>
+                        <div class="form-group">
+                            <select name="sex" id="sex" class="form-control" name="sex" v-model="add.sex">
+                                <option value="男">男</option>
+                                <option value="女">女</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="date" class="form-control" placeholder="出生日期" name="birth" v-model="add.birth">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="身份证号" name="card" v-model="add.card">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="联系方式" name="contact" v-model="add.contact">
+                        </div>
+                        <div class="form-group">
+                            <select name="department" id="department" class="form-control" v-model="add.department">
+                                <option v-for="v in department" :value="v.department" v-clock>{{v.department}}</option>
+                        </select>
+                        </div>
+                        <div class="form-group">
+                            <select name="major" id="major" class="form-control" v-model="add.major">
+                                <option v-for="v in major" :value="v.major" v-if="v.department == add.department" v-clock>{{v.major}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="籍贯" name="place" v-model="add.place">
+                        </div>
+                        <div class="form-group">
+                            <select id="role" class="form-control" name="role" v-model="add.role">
+                                <option value="中共党员">中共党员</option>
+                                <option value="共青团员">共青团员</option>
+                                <option value="群众">群众</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <!-- 模态框底部 -->
+                <div class="modal-footer">
+                    <button class="btn bg-primary text-white" @click.stop.prevent="addDetail">提交</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editStudent">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">修改学生信息</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="file" class="form-control" placeholder="照片" name="photo">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="学号" disabled v-model="edit.number">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="姓名" v-model="edit.name">
+                    </div>
+                    <div class="form-group">
+                        <select name="sex" id="sex" class="form-control" v-model="edit.sex">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="date" class="form-control" placeholder="出生日期" v-model="edit.birth">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="身份证号" v-model="edit.card">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="联系方式" v-model="edit.contact">
+                    </div>
+                    <div class="form-group">
+                        <select name="department" id="department" class="form-control" v-model="edit.department">
+                            <option v-for="v in department" :value="v.department" v-clock>{{v.department}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select name="major" id="major" class="form-control" v-model="edit.major">
+                            <option v-for="v in major" :value="v.major" v-if="v.department == edit.department" v-clock>{{v.major}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="籍贯" v-model="edit.place">
+                    </div>
+                    <div class="form-group">
+                        <select name="政治面貌" id="role" class="form-control" v-model="edit.role">
+                            <option value="中共党员">中共党员</option>
+                            <option value="共青团员">共青团员</option>
+                            <option value="群众">群众</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- 模态框底部 -->
+                <div class="modal-footer">
+                    <button class="btn bg-primary text-white" @click.stop.prevent="editDetail">提交</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editPassword">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- 模态框头部 -->
+                <div class="modal-header">
+                    <h4 class="modal-title">修改密码</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- 模态框主体 -->
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="工号" v-model="editInfo.number" readonly>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" class="form-control" placeholder="密码" v-model="editInfo.password">
+                    </div>
+                </div>
+                <!-- 模态框底部 -->
+                <div class="modal-footer">
+                    <button class="btn bg-primary text-white" @click.stop.prevent="editPassword">提交</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <a href="javascript:;" class="text-success" 
+                    @click="editInfo.number = item.number" data-target="#editPassword" data-toggle="modal">改密</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editPassword">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- 模态框头部 -->
+                <div class="modal-header">
+                    <h4 class="modal-title">修改密码</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- 模态框主体 -->
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="工号" v-model="editInfo.number" readonly>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" class="form-control" placeholder="密码" v-model="editInfo.password">
+                    </div>
+                </div>
+                <!-- 模态框底部 -->
+                <div class="modal-footer">
+                    <button class="btn bg-primary text-white" @click.stop.prevent="editPassword">提交</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</main>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/vue.min.js"></script>
+<script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            url: 'php/api',
+            auth: '',
+            detail: [],
+            edit: [],
+            major: [],
+            department: [],
+            add:{
+                number: '',
+                name: '',
+                sex: '男',
+                birth: '',
+                card: '',
+                contact: '',
+                department: '',
+                major: '',
+                place: '',
+                role: ''
+            },
+            editInfo: {
+                number: '',
+                password: '',
+            }
+        },
+        methods: {
+            logout(){
+                $.ajax({
+                    url: `${this.url}/user/logout?token=${this.auth.token}`,
+                    type: 'get',
+                    success(data){
+                        localStorage.removeItem('auth');
+                        location.href = 'index.html';
+                    }
+                })
+            },
+            getMajor(){
+                var _this = this;
+                $.get(`${this.url}/school/index?token=${this.auth.token}`,function(data){
+                    _this.major = data.data;
+                    _this.department = data.department;
+                });
+            },
+            getDetail(){
+                var _this = this;
+                $.get(`${this.url}/user/index?token=${this.auth.token}`,function(data){
+                    _this.detail = data.data;
+                });
+            },
+            addDetail(){
+                var _this = this;
+                var formData = new FormData($('#addData')[0]);
+                $.ajax({
+                    url: `${this.url}/user/student/information?token=${this.auth.token}`,
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success(data){
+                        _this.getDetail();
+                        _this.add = {
+                            number: '',
+                            name: '',
+                            sex: '男',
+                            birth: '',
+                            card: '',
+                            contact: '',
+                            department: '',
+                            major: '',
+                            place: '',
+                            role: ''
+                        };
+                        $('.close').click();
+                    },
+                    error(xmr){
+                        var err = JSON.parse(xmr.responseText);
+                        var str = `<p class="text-danger error_message">${err.msg}</p>`;
+                        $('#addStudent').append(str);
+                        setTimeout(function(){
+                            $('.error_message').fadeOut();
+                        },2000);
+                    }
+                });
+            },
+            editDetail(){
+                var _this = this;
+                $.ajax({
+                    url: `${this.url}/user/update?token=${this.auth.token}`,
+                    type: 'POST',
+                    data: this.edit,
+                    success(data){
+                        _this.getDetail();
+                        $('.close').click();
+                    },
+                    error(xmr){
+                        var err = JSON.parse(xmr.responseText);
+                        var str = `<p class="text-danger error_message">${err.msg}</p>`;
+                        $('#editStudent').append(str);
+                        setTimeout(function(){
+                            $('.error_message').fadeOut();
+                        },2000);
+                    }
+                });
+            },
+            delDetail(id){
+                var _this = this;
+                $.ajax({
+                    url: `${this.url}/user/destroy/${id}?token=${this.auth.token}`,
+                    type: 'post',
+                    data: {
+                        '_method' : 'DELETE'
+                    },
+                    success(data){
+                        _this.getDetail();
+                    }
+                })
+            },
+            editPassword(){
+                var _this = this;
+                $.ajax({
+                    url: `${this.url}/user/info/password?token=${this.auth.token}`,
+                    type: 'POST',
+                    data: this.editInfo,
+                    success(data){
+                        _this.editInfo = {
+                                number: '',
+                                password: '',
+                            };
+                        $('#editPassword .card-body input').val('');
+                        $('.close').click();
+                    },
+                    error(xmr){
+                        var err = JSON.parse(xmr.responseText);
+                        var str = `<p class="text-danger error_message">${err.msg}</p>`;
+                        $('#editPassword .modal-content').append(str);
+                        setTimeout(function(){
+                            $('.error_message').fadeOut();
+                        },2000);
+                    }
+                })
+            },
+            searchInfo(){
+                var _this = this;
+                $.ajax({
+                    url: `${this.url}/user/info/search?token=${this.auth.token}`,
+                    type: 'POST',
+                    data: {
+                        'num' : $('#searchData').val(),
+                    },
+                    success(data){
+                        _this.detail = data.data;
+                    }
+                });
+            }
+        },
+        mounted(){
+            if(localStorage.getItem('auth')){
+                this.auth = JSON.parse(localStorage.getItem('auth'));
+                this.getDetail();
+                this.getMajor();
+            } else location.href='index.html';
+        }
+    });
+</script>
+</body>
+</html>
